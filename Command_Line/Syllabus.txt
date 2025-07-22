@@ -1,0 +1,6 @@
+Intro to and Learn the Command Line Covered Topics:
+
+Navigating the File System
+Viewing and Changing the File System
+Redirecting Input and Output
+Configuring the Environment
