@@ -1,0 +1,40 @@
+/* Understand table */
+Select * from nomnom;
+
+/* What are the distinct neighborhoods in table? */
+Select Distinct neighborhood from nomnom;
+
+/* Distinct cuisine? */
+Select Distinct cuisine from nomnom;
+
+/* Chinese takeout options */
+Select * from nomnom where cuisine = 'Chinese';
+
+/* All restaurants with reviews of 4 and up? */
+Select * from nomnom where review >= 4 order by review desc;
+
+/* All Italian restaurants costing $$$ */
+Select * from nomnom where price = '$$$' and cuisine = 'Italian';
+
+/* Find a restaurant containing meatball */
+Select * from nomnom where name like '%meatball%';
+
+/* All restaurants in Midtown, Downtown, or Chinatown */
+Select * from nomnom where neighborhood = 'Midtown' or neighborhood = 'Downtown' or neighborhood = 'Chinatown' order by neighborhood Desc;
+
+/* All restaurants with health grade pending */
+Select * from nomnom where health is null;
+
+/* Make a top ten restaurants ranking by reviews */
+Select * from nomnom order by review Desc limit 10;
+
+/* Change ranking system with a CASE statement assigned to each restaurant name */
+Select name, CASE
+When review > 4.5 Then 'Extraordinary'
+When review > 4 Then 'Excellent'
+When review > 3 Then 'Good'
+When review > 2 Then 'Fair'
+Else 'Poor'
+End As 'review'
+From nomnom;
+

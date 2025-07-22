@@ -1,0 +1,35 @@
+Select * from startups;
+
+/* Calculate the total number of companies in the table. */
+Select count(*) from startups;
+
+/* We want to know the total value of all companies in this table. */
+Select sum(valuation) as 'Total_Value_of_Companies' from startups;
+
+/* What is the highest amount raised by a startup? */
+Select max(raised) as 'Max_Amount_Raised' from startups;
+
+/* Edit the query so that it returns the maximum amount of money raised, during ‘Seed’ stage. */
+Select max(raised) as 'Max_Amount_Seed_Raised' from startups where stage = 'Seed';
+
+/* In what years were the oldest and newest company on the list founded? */
+Select min(founded), max(founded) from startups;
+
+/* Retrun average validation */
+Select avg(valuation) from startups;
+
+/* Return the average valuation, in each category. */
+Select category, avg(valuation) as 'Valuations_By_Category' from startups group by category;
+
+/* Return the rounded average valuation, in each category. */
+Select category, round(avg(valuation), 0) as 'Valuations_By_Category' from startups where valuation is not null group by category order by avg(valuation) Desc;
+
+/* First, return the name of each category with the total number of companies that belong to it. */
+Select category, count(*) as 'Amount' from startups group by category having Amount > 3 order by count(*) Desc;
+
+/* Average startup size per location? */
+Select round(avg(employees), 1) as 'average employee size', location from startups group by location;
+
+/* Average startup size per location with avg size above 500 employees? */
+Select round(avg(employees), 1) as 'average employee size', location from startups group by location having avg(employees) > 500;
+

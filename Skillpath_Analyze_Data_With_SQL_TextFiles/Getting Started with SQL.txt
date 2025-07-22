@@ -1,0 +1,51 @@
+/* 
+Create a table named friends with three columns:
+id that stores INTEGER
+name that stores TEXT
+birthday that stores DATE
+*/
+
+CREATE TABLE friends (
+  id INTEGER,
+  name TEXT,
+  birthday DATE
+);
+
+/* 
+Add Ororo Munroe to friends. Her birthday is May 30th, 1940.  Add two more friends to the table.
+*/
+
+INSERT INTO friends (id, name, birthday)
+VALUES (1, 'Ororo Munroe', 'May 30th, 1940');
+
+INSERT INTO friends (id, name, birthday)
+VALUES (2, 'HAZEL', 'January 1st 2018');
+
+INSERT INTO friends (id, name, birthday)
+VALUES (3, 'Claire', 'March 3rd 2017');
+
+/* 
+Update Ororo's name to Storm.'
+*/
+
+UPDATE friends SET name = 'Storm' WHERE id = 1;
+
+/* 
+Add an email column.
+*/
+
+ALTER TABLE friends ADD COLUMN email TEXT;
+
+/* 
+Update emails for everyone.
+*/
+
+UPDATE friends SET email = 'storm@codecademy.com' WHERE id = 1;
+
+/* 
+Delete Storm row as she is fictional.
+*/
+
+DELETE FROM friends WHERE id = 1;
+
+SELECT * from friends;

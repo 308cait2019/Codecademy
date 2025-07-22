@@ -1,0 +1,58 @@
+/* Will use a stream and chat table */
+
+Select * from stream limit 20;
+Select * from chat limit 20;
+
+/* Find the unique games in the stream table and channel table? (Qs 2 and 3 together)*/
+Select Distinct(stream.game) from stream join chat on stream.device_id = chat.device_id; 
+
+/* Find most popular game in the stream table */
+Select game from stream Where game is not null Group By game Order by game Asc;
+
+/* Where are the League of Legends players loggin in from? */
+Select country, count(*) AS 'number_of_players' from stream where game = 'League of Legends' and country is not null Group by 1 Order by 1 Asc;
+
+/* List number of players for each streamer */
+Select player, count(device_id) As 'number_of_streamers' from stream group by player;
+
+/* Group games by genres. */
+ SELECT game,
+  Case
+    When game = 'League of Legends'    
+      THEN 'MOBA'
+    When game = 'Dota 2' 
+      THEN 'MOBA'
+    When game = 'Heroes of the Storm'   
+      THEN 'MOBA'
+    When game = 'Counter-Strike: Global Offensive' 
+      THEN 'FPS'
+    When game = 'DayZ' 
+      THEN 'Survival'
+    When game = 'ARK: Survival Evolved' 
+      THEN 'Survival'
+  Else 'Other'
+  End as Genre
+FROM stream where game is not null Group by game Order by game Asc;
+
+/* Find time data type, which is DATETIME. yy-mm-dd hh-mn-ss*/
+Select time from stream limit 10;
+
+/* Convert to strftime to show the 20 most recent stream times and the seconds value from each timestamp */
+Select time, strftime('%S', time) As 'streaming second' From stream Group by 1 Order by time desc Limit 20;
+
+/* Return the hour and hour count of the time column */
+Select strftime('%H', time) As 'streaming hour', Count(strftime('%H', time)) As 'number of streams at hour' From stream Group by 1;
+
+/* Join stream and chat table (again) Inform on number of rows before and after combining tables. 
+
+The stream and chat counts show total entries (rows) in each table.
+The inner join row count shows how many device IDs appear in both tables.
+This helps you see how much overlap there is between the two datasets.
+*/
+Select count(*) as 'inner join row count' from stream join chat on stream.device_id = chat.device_id;
+Select count(*) as 'number of stream rows' from stream;
+Select count(*) as 'number of chat rows' from chat;
+
+/* A left join returns all rows from the left table (stream), even if no matching row in the right table (chat). If there is no match, the right table columns will have null value entries. 
+
+An inner join only returns rows where there is a match in both tables. */

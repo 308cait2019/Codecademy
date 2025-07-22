@@ -1,0 +1,17 @@
+/* Understand table */
+Select * from transaction_data limit 10;
+
+/* Some fraudulent transactions were coming from Smokey Bear's zip code according to finance dept. Find names and emails of the transactions listing zip code 20252. */
+Select full_name, email from transaction_data where zip = 20252;
+
+/* Finance also notived pseudonyms associated with fraudulent transactions.  Pseudonyms were Art Vandelay or a der for a middle name. */
+Select full_name, email from transaction_data where full_name = 'Art Vandelay' or full_name like '% der %';
+
+/* IP irregularities exist, such as any IP address beggining with 10 is reserved for internal use only. IPs like this should not have access to the service. */
+Select ip_address, email from transaction_data where ip_address like '10.%';
+
+/* Users are making fraudulent transactions with a temporary email address that verifies and self-destructs. Find temporary domain emails */
+Select Distinct email from transaction_data where email like '%temp_email.com';
+
+/* Finance dept. seeks a specific transaction occuring from an IP address starting with 120 and a name starting with John. */
+Select * from transaction_data where full_name like 'John%' and ip_address like '120.%';

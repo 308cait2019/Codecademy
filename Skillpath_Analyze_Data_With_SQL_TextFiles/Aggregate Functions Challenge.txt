@@ -1,0 +1,24 @@
+/* Use COUNT() and a LIKE operator to determine the number of users that have an email ending in ‘.com’. */
+Select count(email) from users where email like '%.com';
+
+/* Most popular first names by date? */
+Select first_name, count(*) as 'count' from users group by first_name order by count desc limit 20;
+
+/* The UX Research team want the result to contain: duration, which is the watch event duration, rounded to the closest minute count, the number of watch events falling into this “bucket”. Use COUNT(), GROUP BY, and ORDER BY to create this result and order this data by increasing duration. */
+Select round(watch_duration_in_minutes) as 'duration', count(*) as 'count' from watch_history group by duration order by duration Asc;
+
+/* Find all the users that have successfully made a payment to Codeflix and find their total amount paid. Sort them by their total payments (from high to low). */
+Select user_id, sum(amount) as 'Sum_Amount_Paid' from payments where status = 'paid' group by user_id order by Sum_Amount_Paid desc;
+
+/* To the nearest minute, how many minutes of content were streamed on Codeflix? */
+Select round(sum(watch_duration_in_minutes)) from watch_history;
+
+/* Which days in this period did Codeflix collect the most money? Your result should have two columns, pay_date and total amount, sorted by the latter descending. This should only include successful payments (status = 'paid'). */
+Select pay_date, sum(amount) as 'Total' from payments where status = 'paid' group by pay_date order by Total Desc;
+
+/* When users successfully pay Codeflix (status = 'paid'), what is the average payment amount? */
+Select avg(amount) from payments where status = 'paid';
+
+/* Of all the events in the watch_history table, what is the duration of the longest individual watch event? What is the duration of the shortest? */
+Select max(watch_duration_in_minutes), min(watch_duration_in_minutes) from watch_history;
+

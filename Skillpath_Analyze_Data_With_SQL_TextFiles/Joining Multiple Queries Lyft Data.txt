@@ -1,0 +1,29 @@
+Select * from trips;
+Select * from riders;
+Select * from cars;
+
+/* Try out a cross join between riders and cars. */
+Select riders.first, riders.last, riders.rating, cars.model, cars.status from riders, cars;
+
+/* Create a Trip Log with the trips and its users. */
+Select trips.date, trips.pickup, trips.dropoff, trips.rider_id, riders.username from trips left join riders on trips.rider_id = riders.id where username is not null;
+
+/* Create a link between the trips and the cars used during those trips. */
+Select trips.cost, trips.type, cars.model, cars.OS from trips join cars on trips.car_id = cars.id;
+
+/* Stack the riders table on top of the new table named riders2. */
+Select * from riders union select * from riders2;
+
+/* Average cost per trip? */
+Select avg(cost) as average_trip_cost from trips;
+
+/* Find all the riders who have used Lyft less than 500 times */
+Select id as 'id of person taking <500 trips' from riders where total_trips < 500;
+
+/* Calculate number of active cars */
+Select count(id) as 'number of active cars' from cars where status = 'active';
+
+/* Write a query that finds the two cars that have the highest trips_completed */
+Select id, model, trips_completed from cars order by trips_completed desc limit 2;
+
+

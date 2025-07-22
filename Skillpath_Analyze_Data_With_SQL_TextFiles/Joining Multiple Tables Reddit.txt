@@ -1,0 +1,41 @@
+Select * from users limit 5;
+select * from posts limit 5; 
+select * from subreddits limit 5;
+
+/* Primary keys; id columns. Foregign keys (refer to a primary key in another table) ; user and subreddit id columns in posts table. */
+
+/* Count how many different subreddits there are.*/
+Select count(*) as number_of_counts from subreddits;
+
+/* User with the highest score? */
+Select username as highest_scoring_user, score from users order by score desc limit 1;
+
+/* Post with the highest score? */
+Select title as highst_scoring_post, score from posts order by score desc limit 1;
+
+/* Top 5 subreddits w/ highest subscriber count? */
+Select name as most_subscribers, subscriber_count from subreddits order by subscriber_count desc limit 5;
+
+/* Left join users and posts to know how many posts each user made. Order by number of posts desc. */
+Select users.username, count(posts.id) as 'posts_done' from users left join posts on users.id = posts.user_id group by users.id order by posts_done desc;
+
+/* Only see existing posts, posts with a username. Use inner join. */
+Select * from posts join users on posts.user_id = users.id;
+
+/* Posts have been added. Include the new column */
+Select * from posts union select * from posts2 limit 10;
+
+/* Subreddits with most popular posts, where score >= 5000. */
+With popular_posts as (
+Select * from posts where score >= 5000
+)
+Select subreddits.name, popular_posts.id, popular_posts.score from subreddits join popular_posts on subreddits.id = popular_posts.subreddit_id order by popular_posts.score desc;
+
+/* Highest scoring post per subreddit? */
+Select subreddits.name, posts.title, max(posts.score) as 'highest_scoring_post' from posts join subreddits on posts.subreddit_id = subreddits.id group by subreddits.id order by max(posts.score) desc; 
+
+/* Dont forget to include group by clause when doing how many xxx per xxx */
+
+/* Calculate average score of all posts per subreddit. */
+Select subreddits.name, posts.title, round(avg(posts.score), 2) as 'average_score' from posts join subreddits on posts.subreddit_id = subreddits.id group by subreddits.name order by avg(posts.score) desc;
+

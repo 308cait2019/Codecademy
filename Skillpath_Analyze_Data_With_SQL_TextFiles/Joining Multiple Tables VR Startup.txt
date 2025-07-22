@@ -1,0 +1,42 @@
+Select * from employees limit 5;
+Select * from projects limit 5;
+
+/* Employees with no chosen project? */
+Select * from employees where current_project is null order by employees.last_name;
+
+/* Names of projects not chosen by any employees? */
+Select * from projects where project_id not in (select current_project from employees where current_project is not null);
+
+/* Which project chosen by the most employees? */
+Select project_name, count(current_project) from projects join employees on projects.project_id = employees.current_project where current_project is not null group by project_name order by count(current_project) desc;
+
+/* Number of projects chosen by multiple employees? */
+Select employees.employee_id, employees.first_name, employees.last_name, count(employees.current_project) as number_of_current_projects, projects.project_name from projects join employees on projects.project_id = employees.current_project where current_project is not null group by current_project order by count(current_project) desc; 
+
+/* Count of all project names */
+Select count(project_name) as 'Number of each project', project_name from projects group by project_name;
+
+/* Count number of positions on each project? */
+Select employees.position, projects.project_name, count(employees.position) as number_of_positions from employees join projects on employees.current_project = projects.project_id where employees.position = 'Developer' group by projects.project_name, employees.position;
+
+/* Most popular personality type for employees? */
+Select personality, count(personality) as 'number_of_persons' from employees group by personality order by count(personality) desc limit 3;
+
+/* Names of projects chosen by employees with most common personality type? */
+Select employees.personality, projects.project_name from employees join projects on employees.current_project = projects.project_id where employees.personality = 'ENFJ';
+
+/* Which personality type is most represented by employees with a selected project.*/
+Select employees.first_name,  employees.last_name, employees.personality, count(employees.personality) as number_of_personalities, projects.project_name from employees join projects on employees.current_project = projects.project_id where employees.current_project is not null group by employees.personality order by number_of_personalities desc;
+
+/* For each employee, provide their name, personality, the names of any projects they’ve chosen, the number of incompatible co-workers with INFP personality type. */
+SELECT last_name, first_name, personality, project_name,
+CASE 
+   WHEN personality = 'INFP' 
+   THEN (SELECT COUNT(*)
+      FROM employees 
+      WHERE personality IN ('ISFP', 'ESFP', 'ISTP', 'ESTP', 'ISFJ', 'ESFJ', 'ISTJ', 'ESTJ'))
+   ELSE 0
+END AS 'IMCOMPATS'
+FROM employees
+LEFT JOIN projects on employees.current_project = projects.project_id;
+

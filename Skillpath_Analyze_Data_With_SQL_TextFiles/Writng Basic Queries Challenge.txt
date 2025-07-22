@@ -1,0 +1,23 @@
+/* Find the number of girls who were named Lillian for the full span of time of the database. */
+Select year, number from babies where name = 'Lillian';
+
+/* Find 20 distinct names that start with 'S' */
+Select Distinct name from babies where name Like 'S%' limit 20;
+
+/* Top ten names in 1880 and select name, gender, number column rows */
+Select name, gender, number from babies where year = 1880 order by number desc limit 10;
+
+/* select all columns where cuisine is japanese and price is $$*/
+Select * from nomnom where cuisine = 'Japanese' and price = '$$';
+
+/* Select from all columns to find the name of a restaurant containing noodle */
+Select Distinct * from nomnom where name like '%noodle%';
+
+/* Select from all columns the restaurants with empty health values, indicating no inspection yet */
+Select * from nomnom where health is null;
+
+/* Select all columns from news table and order by title column A->Z */
+Select title, publisher from news order by title ASC;
+
+ /* The category column contains the article category: 'b' stands for Business't' stands for Technology  and What are the 20 business articles published most recently? */
+Select * from news where category = 'b' order by timestamp Desc limit 20;

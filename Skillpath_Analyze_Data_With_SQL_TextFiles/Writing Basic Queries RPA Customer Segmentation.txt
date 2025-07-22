@@ -1,0 +1,20 @@
+/* Understand data table */
+Select * from users limit 20;
+
+/* Marketing wants to send a Born in the '80s email to appropriate users. Find email addresses and bdays of users between 1980-01-01 and 1989-12-31 */
+Select email, birthday from users where birthday between '1980-01-01' and '1989-12-31';
+
+/* Find emails and creation date of users whose created_at date is up to May 2017 */
+Select email, created_at from users where created_at < 'May 2017';
+
+/* An A/B test on users that used cure animal clipart to encourage sign up was done. See how group showing bears is doing. */
+Select email from users where test = 'bears' and test is not null;
+
+/* 4 advertisiing campaigns were run. Two sets of ad copy sets 1 and 2 were both run on two search engines AAA and BBB. The resulting campaign values are: AAA-1, AAA-2, BBB-1, BBB-2, Find all the emails of all users who received a campaign on website BBB. */
+Select email from users where campaign like 'BBB%';
+
+/* Find all emails for users who recieved ad copy 2 in their campaign */
+Select email from users where campaign like '%-2';
+
+/* Find all email from users who got an ad copy and a test */
+Select campaign, test from users where test is not null and campaign is not null;

@@ -1,0 +1,22 @@
+/* Understand the data table */
+Select * from orders limit 10;
+
+/* How recent is the data (take first and last date entry)? */
+Select Distinct order_date from orders order by order_date Asc limit 1;
+Select Distinct order_date from orders order by order_date Desc limit 1;
+
+/* The special_instructions column stores customer notes for kitchen and deliver. List the first 20 rows that are not null by alphabetical order A-Z. */
+Select special_instructions from orders where special_instructions is not null order by special_instructions Asc limit 20;
+
+/* Let’s search for special instructions that have the word ‘sauce’. */
+Select special_instructions from orders where special_instructions like '%sauce%';
+
+/* Let’s search for special instructions that have the word ‘door’. */
+Select special_instructions from orders where special_instructions like '%door%';
+
+/* Let’s search for special instructions that have the word ‘box’. */
+Select special_instructions from orders where special_instructions like '%box%';
+
+/* Add a new column where special_instructions contains box and rename the id and special_instructions columns */
+Select id as '#', special_instructions as 'Notes'from orders where special_instructions like '%box%';
+

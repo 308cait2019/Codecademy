@@ -1,0 +1,19 @@
+Select * from transactions limit 10;
+
+/* Calculate sum of all money going in and out */
+Select sum(money_in) from transactions;
+Select sum(money_out) from transactions;
+
+/* How many money_in transactions are in this table and in this table when BIT is in currency? */
+Select count(money_in) as 'Number of Transactions of Money In' from transactions;
+Select count(money_in) as 'Number of Transactions of Bitcoin in' from transactions where currency like '%BIT%';
+
+/* Largest transaction in the whole table? Was it money in or out? */
+Select max(money_in) as 'Max Amount In USD', max(money_out) as 'Max Amount Out USD' from transactions;
+
+/* What is the average money_in in the table for the currency Ethereum (‘ETH’)? */
+Select round(avg(money_in), 2) as 'Average Amount of Ethereum ETH Money In' from transactions where currency like 'ETH';
+
+/* Ledger for different dates. */
+Select date, round(avg(money_in), 2) as 'Avg Money In', round(avg(money_out), 2) as 'Avg Money Out' from transactions group by date order by date desc;
+

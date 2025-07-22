@@ -1,0 +1,41 @@
+SELECT * FROM state_climate;
+/* Columns: state year tempf tempc */
+
+/* Avg Yearly Temp Per State */
+SELECT state, year, tempf, tempc, 
+AVG(tempf) OVER (PARTITION BY state ORDER BY year) AS 'running_avg_temp_F' from state_climate;
+
+/* Lowest yearly avg temp per state 
+FIRST_VALUE is better than MIN() if wanting to adjust the frame or order and still get lowest value. */
+SELECT state, year, tempf, tempc, FIRST_VALUE(tempf) OVER (PARTITION BY state ORDER BY tempf ASC) AS 'lowest_temp_F' from state_climate;
+
+/* highest yearly avg temp per state */
+SELECT state, year, tempf, tempc, LAST_VALUE(tempf) OVER (PARTITION BY state ORDER BY tempf DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'highest_temp_F' from state_climate;
+
+/* This expands on Q4 by filtering the results to show only the record setting years or rows where the temperature matches the highest recorded temperature for each state. */
+WITH StateHighestTemp AS (SELECT state, year, tempf, tempc, LAST_VALUE(tempf) OVER (PARTITION BY state ORDER BY tempf DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS 'highest_temp_F' from state_climate) 
+SELECT state, year, tempf, tempc, highest_temp_F FROM StateHighestTemp
+WHERE tempf = highest_temp_F;
+
+/* Change in year-to-year temp */
+SELECT * FROM (SELECT state, year, tempf, tempc, LAG(tempf, 1) OVER (PARTITION BY state ORDER BY year) AS previous_year_tempf, (tempf - LAG(tempf, 1) OVER (PARTITION BY state ORDER BY year)) AS change_in_tempf FROM state_climate) WHERE change_in_tempf IS NOT NULL ORDER BY change_in_tempf DESC;
+
+/* From above, largest change in temp occured in first entry of change_in_tempf column, at 5.01 deg F in North Dakota. */
+
+/* Rank the coldest temps on record. */
+SELECT year, state, tempf, tempc, RANK() OVER (ORDER BY tempf ASC) AS coldest_rank FROM state_climate limit 10;
+
+/* From the above, the 10 coldest years are historic with 1950 North Dakota being the coldest on record.*/
+
+/* Rank the coldest temps on record. */
+SELECT year, state, tempf, tempc, RANK() OVER (ORDER BY tempf DESC) AS warmest_rank FROM state_climate limit 10;
+
+/* From the above, the 10 warmest years are recent with 2015 Florida being the warmest on record.*/
+
+/* Write a query that will return the average yearly temperatures in quartiles instead of in rankings for each state. */
+SELECT state, year, tempf, tempc, NTILE(4) OVER(PARTITION BY state ORDER BY tempf ASC) AS 'running_avg_temp_F_quartiles' from state_climate;
+
+/* Query divides each state’s yearly temperatures into quartiles using NTILE(4) with PARTITION BY state ORDER BY tempf ASC. The lowest temperatures at the borrom of the list get the top quartile number of 4. */
+
+/* Write a query that will return the average yearly temperatures in quintiles overall. */
+SELECT state, year, tempf, tempc, NTILE(5) OVER(ORDER BY tempf ASC) AS 'running_avg_temp_F_quartiles' from state_climate;

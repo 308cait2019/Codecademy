@@ -1,0 +1,113 @@
+/* Place the whole query below into a WITH statement, inside parentheses (), and give it the name previous_query: 
+Join the temporary table previous_query with customers table and select the following columns:
+customers.customer_name
+previous_query.subscriptions
+Check the answer in the hint below. */
+
+WITH previous_query AS (
+   SELECT customer_id,
+      COUNT(subscription_id) AS 'subscriptions'
+   FROM orders
+   GROUP BY customer_id
+)
+SELECT customers.customer_name, 
+   previous_query.subscriptions
+FROM previous_query
+JOIN customers
+  ON previous_query.customer_id = customers.customer_id;
+
+/* The column membership_plan_id in premium_users should match the column id in plans. Join plans and premium_users and select:
+user_id from premium_users
+description from plans */
+SELECT premium_users.user_id, 
+   plans.description
+FROM premium_users
+JOIN plans
+  ON premium_users.membership_plan_id = plans.id;
+
+ /* Let’s see the titles of songs that were played by each user. The column song_id in plays should match the column id in songs.
+Join plays to songs and select:
+user_id from plays
+play_date from plays
+title from songs */
+ SELECT plays.user_id, 
+   plays.play_date, songs.title
+FROM plays
+JOIN songs 
+  ON plays.song_id = songs.id;
+
+/* Use a LEFT JOIN to combine users and premium_users and select id from users. The column id in users should match the column user_id in premium_users.
+Use a WHERE clause to limit the results to users where premium_users.user_id IS NULL. This will remove premium users and leave you with only free users. */
+SELECT id
+FROM users
+LEFT JOIN premium_users 
+  ON users.id = premium_users.user_id where premium_users.user_id is null;
+
+/* We’ve used a WITH statement to create two temporary tables: january contains all song plays from January 2017 and february contains all song plays from February 2017 */
+WITH january AS (
+  SELECT * 
+  FROM plays
+  WHERE strftime("%m", play_date) = '01'
+),
+february AS (
+  SELECT *
+  FROM plays
+  WHERE strftime("%m", play_date) = '02'
+
+)
+/* Use a left join to combine january and february on user_id and select user_id from january.
+Add a WHERE statement to find which users played songs in January, but not February: */
+
+Select january.user_id from january left join february on january.user_id = february.user_id where february.user_id is null;
+
+
+/* For each month in months, we want to know if each user in premium_users was active or canceled. Cross join months and premium_users and select:
+user_id from premium_users
+purchase_date from premium_users
+cancel_date from premium_users
+months from months */
+Select premium_users.user_id, premium_users.purchase_date, premium_users.cancel_date, months.months from premium_users cross join months;
+
+ /* Change previous join to display user active status.  If both the purchase date is less than months and the cancel date is less than months, or the calcul date column row is empty, then the premium account is still active.*/
+ SELECT premium_users.user_id,
+  months.months,
+  Case
+  when (premium_users.purchase_date <= months.months) and (premium_users.cancel_date <= months.months) or (premium_users.cancel_date is null)
+  Then 'active'
+  Else 'not_active'
+  End as 'status'
+FROM premium_users
+CROSS JOIN months;
+
+/* Songify has added some new songs to their catalog. Combine songs and bonus_songs using UNION and select all columns from the result.
+Since the songs table is so big, just look at a sample by LIMITing the results to 10 rows. */
+Select * from songs union Select * from bonus_songs limit 10; 
+
+/* Add a third union clause so the result contains 2017-03-01 also. */
+SELECT '2017-01-01' as month
+UNION
+SELECT '2017-02-01' as month
+Union 
+Select '2017-03-01' as month;
+
+/* Query to give the number of times each song played */
+With play_count as (
+Select song_id, count(*) as 'times_played' from plays group by song_id
+)
+/* Use a WITH statement to alias this code as play_count.
+Join play_count with songs and select (in this order):
+songs table’s title column
+songs table’s artist column
+play_count‘s times_played column
+Remember that play_count.song_id will match songs.id. */
+SELECT songs.title, 
+   songs.artist,
+   play_count.times_played
+FROM play_count
+JOIN songs
+  ON play_count.song_id = songs.id;
+
+
+
+
+

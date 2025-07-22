@@ -1,0 +1,22 @@
+Select * from places limit 10;
+Select * from reviews limit 10;
+
+/* If each dollar sign ($) represents $10, how could you find all places that cost $20 or less? */
+Select name, address, type, price_point from places where price_point <= '$$'; 
+
+/* Which columns can join these tables? place_id matches with id between table columns */
+
+/* Write a query inner joining to show all reviews for restaurants with 1+ reviews */
+Select places.average_rating, reviews.rating from places join reviews on places.id = reviews.place_id order by rating desc;
+
+/* Modify previous to display a log of reviews 
+From the places table: name, average_rating
+From the reviews table: username, rating, review_date, note */
+Select places.name, places.average_rating, reviews.username, reviews.rating, reviews.review_date, reviews.note from places join reviews on places.id = reviews.place_id order by rating desc;
+
+/* Redo as left join */
+Select places.name, places.average_rating, reviews.username, reviews.rating, reviews.review_date, reviews.note from places left join reviews on places.id = reviews.place_id order by rating desc;
+
+/* Write a query that finds the reviewer with the most reviews that are BELOW the average rating for places. */
+SELECT username, count(*) as reviews, avg(rating) as mean FROM reviews WHERE rating < (SELECT avg(rating) FROM reviews) GROUP BY username ORDER BY reviews desc LIMIT 1;
+

@@ -1,0 +1,19 @@
+ Select * from met limit 10;
+
+ /* How many pieces are in the American Decorative Art collection? */
+ Select count(department) from met where department = 'American Decorative Arts';
+
+ /* How many pieces have celery in the category? */
+ Select count(*) from met where category like '%celery%';
+
+ /* Find the title and medium of the oldest collection pieces */
+ Select title, medium, min(date) as 'date acquired' from met; 
+
+ /* Find the top 10 countries with the most pieces in the collection */
+ Select country, count(*) as 'Count' from met group by country order by count(*) desc limit 10;
+
+ /* Find categories having more than 100 pieces */
+ Select category, count(*) as 'count' from met group by category having count(*) > 100;
+
+ /* Count number of pieces where the medium contains gold or silver */
+ Select title, medium from met where medium like '%silver%' or medium like '%gold%' order by medium desc;

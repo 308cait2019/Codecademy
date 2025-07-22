@@ -1,0 +1,193 @@
+/* RUNNING TOTAL */
+
+
+/* A running total is the sum of all the previous rows up to the current one.
+SUM is only able to return one row of data that represents the sum of all months. RUNNING_TOTAL is able to show you what the total is after each month. */
+
+/* This is a running total of the total change in followers per month on instagram. */
+SELECT month, change_in_followers,
+   SUM(change_in_followers) OVER (
+      ORDER BY month
+   ) AS 'running_total'
+FROM
+   social_media
+WHERE
+   username = 'instagram';
+
+/* This is a running total of the most posts per username. */
+SELECT username,
+   posts,
+   LAST_VALUE(posts) OVER (
+      PARTITION BY username 
+      ORDER BY posts
+      Range Between Unbounded Preceding And Unbounded Following
+   ) most_posts
+FROM social_media;
+
+/* This window function uses sum, count, and avg to find the sum, count, and average of the change in instagram followers per month from the social_media table. */
+SELECT month,
+  change_in_followers,
+  Sum(change_in_followers) OVER (
+    ORDER BY month
+  ) AS 'running_total',
+  Avg(change_in_followers) Over (
+   Order By month
+   ) As 'running_avh',
+  Count(change_in_followers) Over (
+    Order by month 
+  ) As 'running_count'
+FROM social_media
+WHERE username = 'instagram';
+
+
+/* PARTITION BY *?
+
+
+/* What if we wanted to compare all of our users?
+PARTITION BY is a subclause of the OVER clause and divides a query’s resultant set into parts. It’s very similar to GROUP BY except it does not reduce the number of rows returned.
+While using GROUP BY only allows one row to be returned for each group, PARTITION BY allows you to see all of the resultant rows. */
+
+
+/* FIRST_VALUE AND LAST_VALUE */
+
+
+/* In the past, when we wanted to get the first or last value of a query, we might use the LIMIT clause, probably in conjunction with ORDER BY, which would return one result showing us the first or last value from our dataset. 
+FIRST_VALUE() returns the first value in an ordered set of values.
+LAST_VALUE() returns the last value in an ordered set of values. */
+
+/* Get the 1st value from the dataset. Our window function will pull the first value from the posts column. Posts is going to be pulled based on username due to the PARTITION BY. We are naming this column fewest_posts because of the ORDER BY which defaults to ascending order. */
+SELECT
+   username,
+   posts,
+   FIRST_VALUE (posts) OVER (
+      PARTITION BY username 
+      ORDER BY posts
+   ) fewest_posts
+FROM
+   social_media;
+
+/* In order to get LAST_VALUE to show us the most posts for a user, we need to specify a frame for our window function. */
+SELECT username,
+   posts,
+   LAST_VALUE(posts) OVER (
+      PARTITION BY username 
+      ORDER BY posts
+      Range Between Unbounded Preceding And Unbounded Following
+   ) most_posts
+FROM social_media;
+
+/* RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING specifies the frame for our window function as the current partition and thus returns the highest number of posts in one month for each user. */
+
+
+/* LAG */
+
+
+/* Window functions can use LAG or LEAD in order to access information from a row at a specified offset which comes before (LAG) or after (LEAD) the current row.
+This means that by using LAG or LEAD you can access any row before or after the current row, which can be very useful in calculating the difference between the current and adjacent row. */
+Select * from streams;
+
+/* Columns are artist, week, streams_millions, chart_position */
+
+/* Let’s look at a window function that uses LAG. We will look at the artist’s current number of streams and their streams from the previous week. */
+Select artist, week, streams_millions, Lag(streams_millions, 1, 0) Over (
+  Order by week
+) previous_week_streams
+From streams where artist = 'Lady Gaga';
+
+/* Displaying the previous row value in each row can be useful, but for our purposes let’s change our LAG function to instead show the change in streams for Lady Gaga per week: */
+Select artist, week, streams_millions, streams_millions - Lag(streams_millions, 1, streams_millions) 
+Over (
+  Order by week
+) streams_millions_change
+From streams where artist = 'Lady Gaga';
+
+/* Build upon our current query to use PARTITION BY to show the change in streams for “Lady Gaga” as well as the change in chart position. */
+Select artist, week, streams_millions, streams_millions - Lag(streams_millions, 1, streams_millions) 
+Over (
+  Partition by artist
+  Order by week
+) As 'streams_millions_change', 
+chart_position,
+Lag(chart_position, 1, chart_position) 
+Over (
+  Partition by artist
+  Order by week
+) - chart_position as 'chart_position_change'
+From streams where artist = 'Lady Gaga';
+
+
+/* LEAD */
+
+
+/* Because LEAD looks to future rows, we need to flip how we subtract in order to find the streams_millions_change: */
+Select artist, week, streams_millions, Lead(streams_millions, 1) Over (
+  Partition by artist
+  Order by week) - streams_millions as 'streams_millions_change'
+  From streams;
+
+/* Now modify your query to make it return the chart_position and chart_position_change as well, like we did for LAG.
+Remember to flip your subtraction! You want to now subtract the current chart position from the next row’s chart position. The chart_position_change is the opposite of streams_millions_change because a decrease in chart position (going from number 10 to 1) is considering moving up the charts. */
+Select artist, week, streams_millions, 
+Lead(streams_millions, 1) 
+Over (
+  Partition by artist
+  Order by week
+) - streams_millions As 'streams_millions_change', 
+chart_position,
+chart_position - Lead(chart_position, 1) 
+Over (
+  Partition by artist
+  Order by week
+) As 'chart_position_change'
+From streams;
+ 
+
+/* ROW_NUMBER */
+
+
+/* The most straight-forward way to order our results which adds a sequential integer number to each row that can be useful for seeing where in your result set the row falls.*/
+
+/* All we need is to write ROW_NUMBER() OVER and then the column you’d like to number by: */
+Select Row_number() Over (
+  Order by streams_millions) As 'row_num', artist, week, streams_millions from streams
+
+
+/* What happens for the row_num when the streams_millions are equal? 
+The rows continue to increase even when the values are equal because it is solely based on the number of the row in our results set. An example of this is when 'row_num' is 7 and 8 and the streams_million is 26.3 for both. */
+
+/* Modify our query to return the results with row_num = 1 being the most streams. */
+Select Row_number() Over (
+  Order by streams_millions desc) As 'row_num', artist, week, streams_millions from streams;
+
+
+/* RANK *?
+
+
+/* Will follow standard ranking rules so that when two values are the same, they will have the same rank whereas with ROW_NUMBER they would not. */
+
+/* Here where the 7th and 8th row have the same value, they are both ranked 7th. By standard ranking the next value is 9th. */
+Select Rank() Over ( Order by streams_millions) as 'rank', artist, week, streams_millions from streams;
+
+/* Now modify your query to return the results so that the streams are ranked with 1 being the most streams in our dataset. */
+Select Rank() Over ( Order by streams_millions desc) as 'rank', artist, week, streams_millions from streams;
+
+/* Lastly, modify the query that it is partitioning our results by week so we can see the most streamed artist of each week. */
+Select Rank() Over(Partition by week Order by streams_millions desc) as 'rank', artist, week, streams_millions from streams;
+
+
+/* NTILE */
+
+
+/* Can be used to find quartiles, quintiles, etc. 
+NTILE lets you break the data into about equal groups, such as quartiles breaking the data into quarters or 4 groups. Here, quartiles are buckets that must be provided. */
+
+/* Dataset broken into 5 groups. Most streamed artist, week is 1st. Tells us Drake, The Weeknd, Bad Bunny are most streamed artists. */
+Select NTILE(5) Over(Order by streams_millions Desc) as 'weekly_streams_group', artist, week, streams_millions From streams;
+
+/* Change the NTILE query to a quartile. Different groupings change our ranking of artists being streamed by millions. */
+Select NTILE(4) Over(Order by streams_millions Desc) as 'quartile', artist, week, streams_millions From streams;
+
+/* Now change our query to also PARTITION BY week. This changes our ranking to show the top artists in each weel 1,2,3, etc. */
+Select NTILE(4) Over(Partition by week Order by streams_millions Desc) as 'quartile', artist, week, streams_millions From streams;
+
+

@@ -1,0 +1,108 @@
+/* bakery: table storing information about orders made at a local bakery
+guesses: table storing the values of a guessing game where the guessed value closest to a number wins */
+Select * from bakery limit 5;
+Select * from guesses limit 5;
+
+/* From the bakery table, compute the total cost (price times quantity) of each order. */
+Select (price * quantity) from bakery;
+
+
+
+/* ABSOLUTE ABS() *?
+
+
+
+/* Using the guesses table with the ABS() function, write a query to find out how close each student’s guess is to the actual number of jelly beans in the jar, which is 804. */
+Select first_name, Abs(guess - 804) from guesses;
+
+/* Find out the absolute value of the difference between the average guess of all students from the actual jelly bean count, which is 804. Is the average guess close to the actual count? */
+Select Abs(Avg(guess) - 804) from guesses;
+
+
+
+/* CAST */
+
+
+
+/* The CAST() function is used to convert the value of an expression into another data type.
+SELECT CAST(expr AS type-name);
+Here, expr is any expression that evaluates to a value, and type-name is the data type to convert that value into. such as int or real. */
+
+/* Example to return 3.0 / 2 = 1.5 */
+SELECT CAST(3 AS REAL) / 2; -- 1.5
+
+/* CAST() can also be used to convert TEXT values into a numerical value like REAL or INTEGER. When doing so, it will only consider any valid prefix at the beginning of the string that represents a numerical value.
+For example, */
+SELECT CAST('3.14 is pi' AS REAL);
+
+/* This query will convert the TEXT value '3.14 is pi' into type REAL, considering only the prefix '3.14' and ignoring ' is pi', resulting in 3.14. */
+
+/* From the bakery table, we want to determine the final price of each order after the discount is applied. However, the value of each discount is currently stored as TEXT, like '1.00 off', so you will need to convert them into numerical values.
+Utilize CAST() to convert the values of the discount column into REAL values. Select the item_name column and the total cost of each order, after applying the discount for each item. */
+Select (price - Cast(discount As Real)) * quantity, item_name from bakery;
+
+
+
+/* DATE AND TIME AND MODIFIERS AND STRFTIME*/
+
+
+
+/* The DATETIME() function will return the entire time string which includes the date and UTC time portions. */
+SELECT DATETIME('2020-09-01 17:38:22');
+
+/* Replace time string with NOW to get current time string. Add localtime to convert to local time zone. */
+SELECT DATETIME('now', 'localtime');
+
+/* Select just the dates for each order’s order_date column from the bakery table. */
+Select Date(order_date) from bakery;
+
+/* To get only the date portion of a time string use DATE as year:month:day. Or use TIME in hours:minutes:seconds. */
+SELECT DATE('2020-09-01 17:38:22'); -- 2020-09-01
+
+/* Modifiers are applied from left to right as they are listed in the function, so order matters.
+The syntax is as follows:
+SELECT DATETIME(timestring, modifier1, modifier2, ...); */
+
+/* start of year: shifts the date to the beginning of the current year.
+start of month: shifts the date to the beginning of the current month.
+start of day: shifts the date to the beginning of the current day.
+
+For example, the following returns the beginning of September 2005. */
+SELECT DATE('2005-09-15', 'start of month');
+
+/* The following modifiers add a specified amount to the date and time of the time string.
+'+-N years': offsets the year
+'+-N months': offsets the month
+'+-N days': offsets the day
+'+-N hours': offsets the hour
+'+-N minutes': offsets the minute
+'+-N seconds': offsets the second
+After each offset is applied, the result date and time is normalized so that it will always be valid.
+
+For example, we can have the following statement. */
+
+/* Modify to show the 7th hour of January 31st, 2020. */
+SELECT DATETIME('2020-02-10', 'start of month', '-1 day', '+7 hours');
+
+/* For each order in the bakery table, the order will be ready for pick up 2 days after the order is made, at 7:00AM, 7 days a week, no matter what time of day the order was made.
+Utilizing the date and time functions and some modifiers, find out when each order can be picked up.*/
+SELECT DATETIME(order_date, 'start of day', 'localtime', '+2 days', '+7 hours') FROM bakery;
+
+/* The STRFTIME() function allows you to return a formatted date, as specified in a format string. 
+It has the following syntax: format, timestring, transform modifiers if desired.
+STRFTIME(format, timestring, modifier1, modifier2, ...) */
+
+/* For example, to extract the month and year of the current date, */
+SELECT STRFTIME('%m %Y', 'now'); 
+
+/* And to extract just the current day, */
+SELECT STRFTIME('%d', 'now');
+
+/* The owners of the bakery want to find out what day most people placed orders.
+Use STRFTIME() with the COUNT() function to find out how many orders were made on each day. Show the results in descending order based on the daily number of orders. */
+SELECT strftime('%d', order_date) AS 'order_day', 
+COUNT(DISTINCT id) FROM bakery GROUP BY order_day ORDER BY COUNT(DISTINCT id) DESC;
+
+
+
+

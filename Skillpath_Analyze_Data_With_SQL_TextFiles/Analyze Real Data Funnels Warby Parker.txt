@@ -1,0 +1,52 @@
+ /* To help users find their perfect frame, Warby Parker has a Style Quiz:
+“What are you looking for?”
+“What’s your fit?”
+“Which shapes do you like?”
+“Which colors do you like?”
+“When was your last eye exam?”
+Users’ responses are stored in a 'survey' table.
+
+Select all columns from the first 10 rows.*/
+Select * from survey limit 10;
+
+/* Users will “give up” at different points. Analyze how many users move to Question 1 to Question 2, etc. */
+Select user_id, question, count(distinct user_id) as 'num_users' from survey group by question;
+
+/* Calculate the percentage of users who answer each question. Which question(s) of the quiz have a lower completion rates? */
+/* Divide each Qs count by the 1st Qs count and multiply by 100 */
+Select question, 
+  count(distinct user_id) as num_users, 
+  count(distinct user_id) * 100.0 / (Select count(distinct user_id) from survey) as percentage_of_users from survey group by question;
+
+/* Will users who get more pairs to try on at home be more likely to purchase? Start by udnerstanding first five rows of data. */
+Select * from quiz limit 5;
+Select * from home_try_on limit 5;
+Select * from purchase limit 5;
+
+/* Create new table with user_id, whether a home try on was done as true/false, number_of_pairs tried, and whether a purchase was made as true/false. 
+If the user has any entries in home_try_on, then is_home_try_on will be True.
+number_of_pairs comes from home_try_on table
+If the user has any entries in purchase, then is_purchase will be True. */
+SELECT
+    q.user_id,
+    CASE WHEN hto.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_home_try_on,
+    MAX(hto.number_of_pairs) AS number_of_pairs_tried,
+    CASE WHEN p.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_purchase
+FROM
+    quiz AS q
+LEFT JOIN
+    home_try_on AS hto ON q.user_id = hto.user_id
+LEFT JOIN
+    purchase AS p ON q.user_id = p.user_id
+GROUP BY
+    q.user_id
+LIMIT 10;
+
+/* Most common style? */
+Select q.style, count(q.style) from quiz as q LEFT JOIN home_try_on AS hto ON q.user_id = hto.user_id
+LEFT JOIN purchase AS p ON q.user_id = p.user_id
+GROUP BY q.style Order by count(q.style) desc;
+
+/* Most common price by style? */
+Select p.price, count(p.price) as number_of_users_bought_at_ammount, p.style from quiz as q LEFT JOIN home_try_on AS hto ON q.user_id = hto.user_id
+LEFT JOIN purchase AS p ON q.user_id = p.user_id  where p.price is not null GROUP BY p.price, p.style Order by count(p.price) desc;

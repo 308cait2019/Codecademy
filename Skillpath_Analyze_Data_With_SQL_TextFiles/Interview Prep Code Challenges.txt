@@ -1,0 +1,108 @@
+/* The books table has columns for id, title, author, average_rating, and num_pages */
+
+/* Find books with average rating between 3.5 and 4.5 */
+SELECT title, author, average_rating from books where average_rating  between 3.5 AND 4.5;
+
+/* Find every author in table */
+SELECT DISTINCT(author) from books;
+
+/* nba_matches has the columns id, date, home_team, away_team, home_points, away_points. */
+
+/* Return results for each nba game. */
+Select id, date, home_points, away_points,
+Case 
+When home_points > away_points THEN 'Home Team'
+ELSE 'Away Team'
+End As 'winning_team'
+From nba_matches;
+
+/* The apps table has columns id, name, genre, rating, and reviews */
+
+/* Find number of apps by genre */
+SELECT genre, COUNT(id) FROM apps GROUP BY genre;
+
+/* Total number of 30 million or more reviews per genre */
+SELECT genre, SUM(reviews) FROM apps GROUP BY genre Having SUM(reviews) > 30000000;
+
+/* Top 20 rated apps */
+SELECT name, genre, rating FROM apps ORDER BY rating DESC limit 20; 
+
+/* Lowest and highest rated apps */
+SELECT rating from apps ORDER BY rating DESC limit 1;
+
+SELECT rating from apps ORDER BY rating ASC limit 1;
+
+/* OR */
+SELECT MIN(rating) FROM apps AS 'lowest_rating_given';
+
+SELECT MAX(rating) FROM apps AS 'highest_rating_given';
+
+/* Avg rating of all apps */
+SELECT round(avg(rating), 2) AS 'average rating' from apps;
+
+/* Projects table has id, employee_id columns */
+/* employees table has id, first_name, last_name columns */
+
+/* Join tables and select all columns */
+SELECT * FROM projects
+JOIN employees ON projects.employee_id = employees.id;
+
+/* Join tables no matter if a project has no employee assigned */
+SELECT * FROM projects
+LEFT JOIN employees ON projects.employee_id = employees.id;
+
+/* math_students and english_students have these columns: student_id, grade, first_name, last_name */
+
+/* Find all students enrolled in both classes */
+Select first_name, last_name from math_students where student_id in (select student_id from english_students);
+
+/* Find which students in math are in the same grade as student id 7 */
+Select * from math_students where grade in(Select grade from math_students where student_id = 7);
+
+/* Find all students enrolled in english and not math */
+SELECT * from english_students where student_id not in (Select student_id from math_students);\
+
+/* Find which grade levels are in both math and english */
+Select grade from math_students WHERE EXISTS (Select grade from english_students);
+
+/* box_office table has columns id, title, week, gross, to_date_gross */
+
+/* Find the running total in gross sales for each movie until the current week */
+
+SELECT title, week, Sum(gross) OVER (PARTITION BY title ORDER BY week) AS 'Total_Movie_Gross_Made', gross from box_office;
+
+/* See where each row falls by ordering results in the amount of gross income */
+Select Row_number() Over (
+  Order by gross) As 'row_num', title, week, gross from box_office ORDER BY gross DESC;
+
+/* orders table has columns id, product_id, price, and quantity */
+
+/* Calculate the price per order */
+Select id, product_id, (price*quantity) from orders; 
+
+/* weather table has id, date, high, low columns for temp in degrees F */
+
+/* Get average temp per date (high temp + low temp)/2 */
+Select date, (Cast(high as Real) + Cast(low As Real))/2.0 As 'average' from weather;
+
+/* purchases table has purchase_id and purchase_date columns */
+
+/* Purchases can be returned within 7 days for full refund. Find date of each purchase eligible for a full refund 7 days from current */
+
+SELECT purchase_id, DATE(purchase_date, '+7 days') from purchases;
+
+/* Find specific hour each purchase was made. */
+SELECT strftime('%H', purchase_date) AS 'Hour_Purchased', 
+Count(strftime('%H', purchase_date)) As 'Number_of_Purchases' From purchases Group BY strftime('%H', purchase_date) Order By 2 Desc;
+
+/* Find the month and day of each purchase as mm-dd and 'reformatted'. */
+SELECT strftime('%m-%d', purchase_date) As 'reformatted' From purchases; 
+
+/* Find the month and day of each purchase as mm-dd and 'reformatted'. */
+SELECT strftime('%m-%d', purchase_date) As 'reformatted' From purchases; 
+
+/* When seeking to find the hours, '%H' or '%H-%m', etc., and %S similarly must be capitalized. %m and %d must not be. */
+
+
+
+

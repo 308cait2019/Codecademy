@@ -1,0 +1,19 @@
+/* We will use two tables throughout this lesson, band_students and drama_students. */
+Select * from band_students limit 10;
+Select * from drama_students limit 10;
+
+/* Complete the subquery to find students taking both band and drama. */
+Select first_name, last_name from band_students where id in (select id from drama_students);
+
+/* 9th grade students are unable to take both drama and band concurrently. */
+Delete from drama_students where id in (select id from history_students);
+
+/* Emlynne (id 20), decided to drop band and join drama. She wants to know all students in her grade already enrolled in drama. */
+Select * from drama_students where grade = (Select grade from band_students where id = 20);
+
+/* Write a query that gives the first and last names of students in band but not drama. */
+Select first_name, last_name from band_students where id not in (select id from drama_students);
+
+/* Write a query that produces the first and last names of all the students who are enrolled in both band AND drama. */
+Select first_name, last_name from band_students where exists (select * from drama_students where id = band_students.id);
+

@@ -1,0 +1,45 @@
+ /* Find the most popular stories */
+ Select title, score from hacker_news order by score desc limit 15;
+
+/* Is a small percentage of hacker news submitters taking the majority of the points? */
+/* First, find the sum of all scores */
+Select sum(score) from hacker_news;
+
+/* Find individual users' combined scores who have gotten combined scores of more than 200 */
+Select user, sum(score) as 'Total Score' from hacker_news group by user having sum(score) > 200;
+
+/* Add user scores together and divide by the total to get the percentage */
+Select (309 + 304 + 282 + 517 / 6366);
+
+/* How many times has each offending user posted this link? */
+Select user, count(*) as 'Number of Times Fraud URL Was Used' from hacker_news where url like '%watch?v=dQw4w9WgXcQ%' group by user order by count(*) desc;
+
+/* Which of these sites feed Hacker News the most:
+GitHub, Medium, or New York Times? */
+Select case 
+when url like '%github.com%' then 'GitHub'
+when url like '%medium.com%' then 'Medium'
+when url like '%nytimes.com' then 'NYT'
+Else 'Other'
+End as 'Source'
+from hacker_news where Source != 'Other' limit 10;
+
+/*  Add a column for the number of stories from each url using count(). */
+Select case 
+when url like '%github.com%' then 'GitHub'
+when url like '%medium.com%' then 'Medium'
+when url like '%nytimes.com' then 'NYT'
+Else 'Other'
+End as 'Source',
+count(*)
+from hacker_news where Source != 'Other' group by source;
+
+/* Best time of day to post a story on the site? Return 24-hr clock (00-23) with %H */
+Select timestamp from hacker_news limit 10;
+Select timestamp, strftime('%H', timestamp) from hacker_news group by timestamp limit 20;
+
+/* Write a query that returns three columns: The hours of the timestamp, the average score for each hour, the count of stories for each hour */
+Select strftime('%H', timestamp) as 'HrTimestamp', avg(score), count(*) from hacker_news group by HrTimestamp order by avg(score);
+
+/* In previous query, round avg score, rename columns to be more readable, add a where clause to filter out null values in timestamp */
+Select strftime('%H', timestamp) as 'HrTimestamp', avg(score) as 'AvgScore', count(*) as 'Count of Each Hr Timestamp' from hacker_news group by HrTimestamp having HrTimeStamp is not null order by avg(score);
